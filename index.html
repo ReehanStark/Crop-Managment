@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agrovia - Crop Management</title>
+<title>Agrovia - Advanced Crop Management</title>
 
 <style>
 body {
   margin: 0;
   font-family: Georgia, serif;
-  background: #0a0f0a;
+  background: linear-gradient(to bottom, #0b1f0b, #071407);
+  background-attachment: fixed;
   color: #e2e8d5;
 }
 
 header {
-  background: #0d1a0d;
+  background: rgba(13,26,13,0.9);
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
@@ -37,7 +38,7 @@ nav button {
 }
 
 nav button.active {
-  background: #16a34a22;
+  background: #16a34a33;
   color: #4ade80;
 }
 
@@ -46,32 +47,38 @@ nav button.active {
 }
 
 .card {
-  background: #0d1a0d;
+  background: rgba(13,26,13,0.9);
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,255,100,0.1);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
   gap: 20px;
-}
-
-input, button {
-  padding: 6px;
-  margin: 5px 0;
-}
-
-button.primary {
-  background: #16a34a;
-  color: white;
-  border: none;
-  cursor: pointer;
 }
 
 .hidden {
   display: none;
+}
+
+.progress {
+  background: #1f3a1f;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #16a34a, #4ade80);
+  text-align: center;
+  color: black;
+  font-size: 12px;
+  transition: width 0.5s ease;
 }
 
 #messageBox {
@@ -88,73 +95,46 @@ button.primary {
   <h2>🌾 AGROVIA</h2>
   <nav>
     <button onclick="showTab('dashboard')" id="btn-dashboard" class="active">Dashboard</button>
-    <button onclick="showTab('crops')" id="btn-crops">Crops</button>
-    <button onclick="showTab('tasks')" id="btn-tasks">Tasks</button>
+    <button onclick="showTab('tasks')" id="btn-tasks">Field Management</button>
   </nav>
 </header>
 
 <div class="container">
 
-  <!-- MESSAGE BOX -->
-  <div id="messageBox" class="card hidden"></div>
+<div id="messageBox" class="card hidden"></div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard">
-    <h1>Dashboard</h1>
-    <p id="date"></p>
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <h1>Interactive Dashboard</h1>
+  <p id="date"></p>
 
-    <div class="grid">
-      <div class="card">
-        <h2 id="totalArea"></h2>
-        <p>Total Area</p>
-      </div>
-      <div class="card">
-        <h2 id="avgHealth"></h2>
-        <p>Average Health</p>
-      </div>
-      <div class="card">
-        <h2 id="pendingTasks"></h2>
-        <p>Pending Tasks</p>
-      </div>
-    </div>
+  <div id="fieldHealth"></div>
+
+  <div class="card">
+    <h2 id="averageHealth"></h2>
+    <p>Average Farm Health</p>
   </div>
+</div>
 
-  <!-- CROPS -->
-  <div id="crops" class="hidden">
-    <h1>Crops</h1>
-
-    <input type="text" id="cropName" placeholder="Crop Name">
-    <input type="text" id="cropField" placeholder="Field">
-    <button class="primary" onclick="addCrop()">Add Crop</button>
-
-    <div id="cropList"></div>
-  </div>
-
-  <!-- TASKS -->
-  <div id="tasks" class="hidden">
-    <h1>Tasks</h1>
-    <div id="taskList"></div>
-  </div>
+<!-- FIELD MANAGEMENT -->
+<div id="tasks" class="hidden">
+  <h1>Field Operations</h1>
+  <div id="taskList"></div>
+</div>
 
 </div>
 
 <script>
-let crops = [
-  { name: "Wheat", field: "Field A", health: 87, area: 12 },
-  { name: "Corn", field: "Field B", health: 92, area: 8 },
-];
 
-let tasks = [
-  { type: "irrigation", field: "Field A", done: false },
-  { type: "fertilization", field: "Field B", done: false },
-  { type: "pest", field: "Field C", done: false, pestPercent: 0 },
+let fields = [
+  { name: "Field A", health: 85 },
+  { name: "Field B", health: 90 },
+  { name: "Field C", health: 78 }
 ];
 
 function showTab(tab) {
   document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("crops").classList.add("hidden");
   document.getElementById("tasks").classList.add("hidden");
-
   document.getElementById(tab).classList.remove("hidden");
 
   document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
@@ -165,114 +145,81 @@ function showMessage(text) {
   const box = document.getElementById("messageBox");
   box.innerHTML = "✅ " + text;
   box.classList.remove("hidden");
-
-  setTimeout(() => {
-    box.classList.add("hidden");
-  }, 3000);
+  setTimeout(() => box.classList.add("hidden"), 3000);
 }
 
 function updateDashboard() {
-  const totalArea = crops.reduce((a,c) => a + c.area, 0);
-  const avgHealth = Math.round(crops.reduce((a,c) => a + c.health, 0) / crops.length);
-  const pending = tasks.filter(t => !t.done).length;
-
-  document.getElementById("totalArea").innerText = totalArea + " ha";
-  document.getElementById("avgHealth").innerText = avgHealth + "%";
-  document.getElementById("pendingTasks").innerText = pending;
-  document.getElementById("date").innerText = new Date().toDateString();
-}
-
-function renderCrops() {
-  const container = document.getElementById("cropList");
+  const container = document.getElementById("fieldHealth");
   container.innerHTML = "";
-  crops.forEach(crop => {
+
+  let total = 0;
+
+  fields.forEach(field => {
+    total += field.health;
+
     container.innerHTML += `
       <div class="card">
-        <h3>${crop.name}</h3>
-        <p>${crop.field}</p>
-        <p>Health: ${crop.health}%</p>
+        <h3>${field.name}</h3>
+        <div class="progress">
+          <div class="progress-bar" style="width:${field.health}%">
+            ${field.health}%
+          </div>
+        </div>
       </div>
     `;
   });
+
+  const avg = Math.round(total / fields.length);
+  document.getElementById("averageHealth").innerText = avg + "%";
+  document.getElementById("date").innerText = new Date().toDateString();
 }
 
 function renderTasks() {
   const container = document.getElementById("taskList");
   container.innerHTML = "";
 
-  tasks.forEach((t,index) => {
-
-    let label = "";
-    if(t.type === "irrigation") label = "💧 Irrigation – " + t.field;
-    if(t.type === "fertilization") label = "🌱 Fertilization – " + t.field;
-    if(t.type === "pest") label = "🐛 Pest Inspection – " + t.field;
-
+  fields.forEach((field, index) => {
     container.innerHTML += `
       <div class="card">
-        <input type="checkbox" ${t.done ? "checked" : ""} 
-        onchange="toggleTask(${index})">
-        ${label}
+        <h3>${field.name}</h3>
+        <button onclick="irrigate(${index})">💧 Irrigation</button>
+        <button onclick="fertilize(${index})">🌱 Fertilization</button>
+        <button onclick="inspectPest(${index})">🐛 Pest Inspection</button>
       </div>
     `;
   });
 }
 
-function toggleTask(index) {
-  const task = tasks[index];
-  task.done = !task.done;
-
-  if(task.done) {
-
-    if(task.type === "irrigation") {
-      showMessage("Irrigation completed successfully.");
-    }
-
-    if(task.type === "fertilization") {
-      showMessage("Fertilization completed successfully.");
-    }
-
-    if(task.type === "pest") {
-      const pest = Math.floor(Math.random() * 41);
-      task.pestPercent = pest;
-
-      if(pest > 0) {
-        showMessage("Pest inspection done. Pest detected: " + pest + "%");
-      } else {
-        showMessage("Pest inspection done. No pests found.");
-      }
-    }
-  }
-
-  renderTasks();
+function irrigate(index) {
+  fields[index].health = Math.min(100, fields[index].health + 5);
+  showMessage("Irrigation completed successfully for " + fields[index].name);
   updateDashboard();
 }
 
-function addCrop() {
-  const name = document.getElementById("cropName").value;
-  const field = document.getElementById("cropField").value;
+function fertilize(index) {
+  fields[index].health = Math.min(100, fields[index].health + 7);
+  showMessage("Fertilization completed successfully for " + fields[index].name);
+  updateDashboard();
+}
 
-  if(!name || !field) {
-    alert("Fill all fields");
-    return;
+function inspectPest(index) {
+  const pest = Math.floor(Math.random() * 41); // 0–40%
+
+  if(pest > 0) {
+    fields[index].health = Math.max(30, fields[index].health - Math.floor(pest/5));
+    showMessage("Pest inspection done for " + fields[index].name +
+      ". Pest detected: " + pest + "%");
+  } else {
+    showMessage("Pest inspection done for " + fields[index].name +
+      ". No pests found.");
   }
 
-  crops.push({
-    name,
-    field,
-    health: 75,
-    area: 5
-  });
-
-  document.getElementById("cropName").value = "";
-  document.getElementById("cropField").value = "";
-
-  renderCrops();
   updateDashboard();
 }
 
 updateDashboard();
-renderCrops();
 renderTasks();
+
 </script>
 
 </body>
