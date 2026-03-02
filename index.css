@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+  background: #0a0f0a;
+  color: #e2e8d5;
+  font-family: Georgia, serif;
+}
+
+a {
+  color: #6b9f71;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #4ade80;
+}
+
+input {
+  margin-right: 10px;
+  padding: 6px;
+}
+
+button {
+  padding: 6px 12px;
+  background: #16a34a;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
