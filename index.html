@@ -1,3 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agrovia - Crop Management</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Georgia, serif;
+  background: #0a0f0a;
+  color: #e2e8d5;
+}
+
+header {
+  background: #0d1a0d;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h2 {
+  color: #4ade80;
+  margin: 0;
+}
+
+nav button {
+  margin-left: 10px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #1f3a1f;
+  color: #6b9f71;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+nav button.active {
+  background: #16a34a22;
+  color: #4ade80;
+}
+
+.container {
+  padding: 30px;
+}
+
+.card {
+  background: #0d1a0d;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 20px;
+}
+
+input, button {
+  padding: 6px;
+  margin: 5px 0;
+}
+
+button.primary {
+  background: #16a34a;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+#messageBox {
+  background: #123312;
+  border: 1px solid #16a34a;
+  color: #4ade80;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🌾 AGROVIA</h2>
+  <nav>
+    <button onclick="showTab('dashboard')" id="btn-dashboard" class="active">Dashboard</button>
+    <button onclick="showTab('crops')" id="btn-crops">Crops</button>
+    <button onclick="showTab('tasks')" id="btn-tasks">Tasks</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- MESSAGE BOX -->
+  <div id="messageBox" class="card hidden"></div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <h1>Dashboard</h1>
+    <p id="date"></p>
+
+    <div class="grid">
+      <div class="card">
+        <h2 id="totalArea"></h2>
+        <p>Total Area</p>
+      </div>
+      <div class="card">
+        <h2 id="avgHealth"></h2>
+        <p>Average Health</p>
+      </div>
+      <div class="card">
+        <h2 id="pendingTasks"></h2>
+        <p>Pending Tasks</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CROPS -->
+  <div id="crops" class="hidden">
+    <h1>Crops</h1>
+
+    <input type="text" id="cropName" placeholder="Crop Name">
+    <input type="text" id="cropField" placeholder="Field">
+    <button class="primary" onclick="addCrop()">Add Crop</button>
+
+    <div id="cropList"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div id="tasks" class="hidden">
+    <h1>Tasks</h1>
+    <div id="taskList"></div>
+  </div>
+
+</div>
+
 <script>
 let crops = [
   { name: "Wheat", field: "Field A", health: 87, area: 12 },
@@ -39,7 +179,6 @@ function updateDashboard() {
   document.getElementById("totalArea").innerText = totalArea + " ha";
   document.getElementById("avgHealth").innerText = avgHealth + "%";
   document.getElementById("pendingTasks").innerText = pending;
-
   document.getElementById("date").innerText = new Date().toDateString();
 }
 
@@ -60,6 +199,7 @@ function renderCrops() {
 function renderTasks() {
   const container = document.getElementById("taskList");
   container.innerHTML = "";
+
   tasks.forEach((t,index) => {
 
     let label = "";
@@ -82,6 +222,7 @@ function toggleTask(index) {
   task.done = !task.done;
 
   if(task.done) {
+
     if(task.type === "irrigation") {
       showMessage("Irrigation completed successfully.");
     }
@@ -91,7 +232,6 @@ function toggleTask(index) {
     }
 
     if(task.type === "pest") {
-      // Random pest detection (0–40%)
       const pest = Math.floor(Math.random() * 41);
       task.pestPercent = pest;
 
@@ -111,7 +251,10 @@ function addCrop() {
   const name = document.getElementById("cropName").value;
   const field = document.getElementById("cropField").value;
 
-  if(!name || !field) return alert("Fill all fields");
+  if(!name || !field) {
+    alert("Fill all fields");
+    return;
+  }
 
   crops.push({
     name,
@@ -131,3 +274,6 @@ updateDashboard();
 renderCrops();
 renderTasks();
 </script>
+
+</body>
+</html>
